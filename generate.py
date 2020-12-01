@@ -1,6 +1,6 @@
 from model import MusicTransformerDecoder
 import datetime
-from midi_processor.processor import decode_midi, encode_midi
+from processor import decode_midi, encode_midi
 
 max_seq = 1024
 load_path = '.\\saved_model'

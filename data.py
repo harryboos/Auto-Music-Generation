@@ -3,7 +3,7 @@ import os
 import pickle
 from tensorflow.python import keras
 import numpy as np
-import midi_processor.processor as processor
+import processor as processor
 
 
 
