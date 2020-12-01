@@ -4,7 +4,7 @@ import re
 import sys
 import hashlib
 from progress.bar import Bar
-from midi_processor.processor import encode_midi
+from processor import encode_midi
 import config
 import random
 
