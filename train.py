@@ -6,6 +6,7 @@ from data import Data
 import datetime
 import sys
 
+
 #hyperparameters
 batch_size = 2
 max_seq = 1024
@@ -19,7 +20,7 @@ embedding_dim = 256
 
 
 # load data
-dataset = Data('dataset/processed')
+
 
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
   def __init__(self, d_model, warmup_steps=4000):
@@ -49,32 +50,48 @@ def loss_function(y_true, y_pred):
 
     return _loss
 
-learning_rate = CustomSchedule(embedding_dim)
-optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, 
-                                     epsilon=1e-9)
+def train(dataset, mt):
+    
 
-mt = MusicTransformerDecoder(
-            embedding_dim=embedding_dim,
-            vocab_size=vocab_size,
-            num_layer=num_layer,
-            max_seq=max_seq,
-            dropout=0.2,
-            loader_path=load_path)
-            
-mt.compile(optimizer=optimizer, loss=loss_function)
+    idx = 0
+    for e in range(epochs):    
+        for b in range(len(dataset.files) // batch_size):
+            try:
+                batch_x, batch_y = dataset.slide_seq2seq_batch(batch_size, max_seq)
+            except:
+                continue
+            result_metrics, weights = mt.train_on_batch(batch_x, batch_y, training=True)
+            if b % 100 == 0:
+                mt.save(save_path)
+                
+                print('\n====================================================')
+                print('Epoch/Batch: {}/{}'.format(e, b))
+                print('Train >>>> Loss: {:6.6}'.format(result_metrics[0]))
+                idx += 1
 
-for e in range(epochs):    
-    for b in range(len(dataset.files) // batch_size):
-        try:
-            batch_x, batch_y = dataset.slide_seq2seq_batch(batch_size, max_seq)
-        except:
-            continue
-        result_metrics = mt.train_on_batch(batch_x, batch_y, training=True)
-        if b % 100 == 0:
-            mt.save(save_path)
-            
-            print('\n====================================================')
-            print('Epoch/Batch: {}/{}'.format(e, b))
-            print('Train >>>> Loss: {:6.6}'.format(result_metrics[0]))
 
+def main():
+
+    learning_rate = CustomSchedule(embedding_dim)
+    optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, 
+                                        epsilon=1e-9)
+
+    mt = MusicTransformerDecoder(
+                embedding_dim=embedding_dim,
+                vocab_size=vocab_size,
+                num_layer=num_layer,
+                max_seq=max_seq,
+                dropout=0.2,
+                loader_path=load_path)
+                
+    mt.compile(optimizer=optimizer, loss=loss_function)
+
+    dataset = Data('dataset/processed')
+
+    train(dataset, mt)
+    
+
+
+if __name__ == "__main__":
+    main()
 
