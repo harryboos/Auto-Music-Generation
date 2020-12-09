@@ -91,8 +91,9 @@ class RelativeGlobalAttention(keras.layers.Layer):
             logits += (tf.cast(mask, tf.float32) * -1e9)
 
         attention_weights = tf.nn.softmax(logits, -1)
+        #print(attention_weights.shape)
         # tf.print('logit result: \n', logits, output_stream=sys.stdout)
-
+        
         attention = tf.matmul(attention_weights, v)
         # tf.print('attention result: \n', attention, output_stream=sys.stdout)
 
@@ -106,6 +107,8 @@ class RelativeGlobalAttention(keras.layers.Layer):
         starting_point = max(0,self.max_seq-len_q)
         e = self.E[starting_point:,:]
         return e
+
+
 
     @staticmethod
     def _qe_masking(qe):
