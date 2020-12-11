@@ -100,17 +100,13 @@ class MusicTransformerDecoder(keras.Model):
 
             result = self.call(decode_array, lookup_mask=look_ahead_mask, training=False)
 
-            u = random.uniform(0, 1)
-            if u > 1:
-                result = tf.argmax(result[:, -1], -1)
-                result = tf.cast(result, tf.int32)
-                decode_array = tf.concat([decode_array, tf.expand_dims(result, -1)], -1)
-            else:
-                pdf = tfp.distributions.Categorical(probs=result[:, -1])
-                result = pdf.sample(1)
-                result = tf.transpose(result, (1, 0))
-                result = tf.cast(result, tf.int32)
-                decode_array = tf.concat([decode_array, result], -1)
+            
+            pdf = tfp.distributions.Categorical(probs=result[:, -1])
+            result = pdf.sample(1)
+            result = tf.transpose(result, (1, 0))
+            result = tf.cast(result, tf.int32)
+            decode_array = tf.concat([decode_array, result], -1)
+            
             del look_ahead_mask
         decode_array = decode_array[0]
 

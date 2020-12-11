@@ -41,7 +41,7 @@ class Decoder(keras.layers.Layer):
 
         self.embedding = keras.layers.Embedding(input_vocab_size, d_model)
         self.pos_encoding = DynamicPositionEmbedding(self.d_model, max_seq=max_len)
-        self.enc_layers = [DecoderLayer(d_model, rate, h=self.d_model // 64, additional=False, max_seq=max_len)
+        self.dec_layers = [DecoderLayer(d_model, rate, h=self.d_model // 64, additional=False, max_seq=max_len)
                            for i in range(num_layers)]
         self.dropout = keras.layers.Dropout(rate)
 
