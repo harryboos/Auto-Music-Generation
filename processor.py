@@ -146,8 +146,6 @@ def _event_seq2snote_seq(event_sequence):
             snote_seq.append(snote)
     return snote_seq
 
-
-
 def _make_time_sift_events(prev_time, post_time):
     time_interval = int(round((post_time - prev_time) * 100))
     results = []
