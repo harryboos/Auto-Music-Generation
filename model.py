@@ -7,7 +7,6 @@ import tensorflow_probability as tfp
 import random
 from progress.bar import Bar
 
-
 class MusicTransformerDecoder(keras.Model):
     def __init__(self, embedding_dim=256, vocab_size=388+2, num_layer=6,
                  max_seq=2048, dropout=0.2, loader_path=None):
@@ -33,6 +32,7 @@ class MusicTransformerDecoder(keras.Model):
     def call(self, inputs, training=None, eval=None, lookup_mask=None):
         decoder, _ = self.Decoder(inputs, training=training, mask=lookup_mask)
         fc = self.fc(decoder)
+        
         if training:
             return fc
         else:
@@ -90,6 +90,7 @@ class MusicTransformerDecoder(keras.Model):
     def generate(self, prior: list, length=2048):
         decode_array = prior
         decode_array = tf.constant([decode_array])
+        sp = decode_array.shape[1]
         
         for i in Bar('generating').iter(range(min(self.max_seq, length))):
             if decode_array.shape[1] >= self.max_seq:
@@ -98,7 +99,7 @@ class MusicTransformerDecoder(keras.Model):
             look_ahead_mask = self.create_look_ahead_mask(decode_array.shape[1])
 
             result = self.call(decode_array, lookup_mask=look_ahead_mask, training=False)
-            
+
             u = random.uniform(0, 1)
             if u > 1:
                 result = tf.argmax(result[:, -1], -1)

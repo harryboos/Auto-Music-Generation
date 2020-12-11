@@ -12,6 +12,5 @@ def main():
     result = mt.generate(inputs[:20], length=length)
     decode_midi(result, file_path=save_path)
     
-    
 if __name__ == "__main__":
     main()

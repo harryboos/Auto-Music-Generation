@@ -16,9 +16,6 @@ vocab_size = 391
 embedding_dim = 256
 
 
-# load data
-dataset = Data('data')
-
 class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     def __init__(self, d_model, warmup_steps=4000):
         super(CustomSchedule, self).__init__()
@@ -48,6 +45,7 @@ def loss_function(y_true, y_pred):
     return _loss
 
 def main():
+    dataset = Data('data')
     learning_rate = CustomSchedule(embedding_dim)
     optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98, 
                                      epsilon=1e-9)
