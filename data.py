@@ -5,8 +5,6 @@ from tensorflow.python import keras
 import numpy as np
 import processor as processor
 
-
-
 class Data:
     def __init__(self, dir_path):
         self.files = list(self.find_pickle_files(dir_path))
@@ -18,7 +16,6 @@ class Data:
         self._seq_file_name_idx = 0
         self._seq_idx = 0
         self.pad_token = processor.RANGE_NOTE_ON + processor.RANGE_NOTE_OFF + processor.RANGE_TIME_SHIFT + processor.RANGE_VEL
-        pass
 
     def batch(self, batch_size, length, mode='train'):
 

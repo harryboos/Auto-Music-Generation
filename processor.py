@@ -106,7 +106,6 @@ def _merge_note(snote_sequence):
     result_array = []
 
     for snote in snote_sequence:
-        # print(note_on_dict)
         if snote.type == 'note_on':
             note_on_dict[snote.value] = snote
         elif snote.type == 'note_off':
@@ -166,10 +165,8 @@ def _control_preprocess(ctrl_changes):
     manager = None
     for ctrl in ctrl_changes:
         if ctrl.value >= 64 and manager is None:
-            # sustain down
             manager = SustainDownManager(start=ctrl.time, end=None)
         elif ctrl.value < 64 and manager is not None:
-            # sustain up
             manager.end = ctrl.time
             sustains.append(manager)
             manager = None
@@ -206,23 +203,17 @@ def encode_midi(file_path):
 
     for inst in mid.instruments:
         inst_notes = inst.notes
-        # ctrl.number is the number of sustain control. If you want to know abour the number type of control,
-        # see https://www.midi.org/specifications-old/item/table-3-control-change-messages-data-bytes-2
         ctrls = _control_preprocess([ctrl for ctrl in inst.control_changes if ctrl.number == 64])
         notes += _note_preprocess(ctrls, inst_notes)
 
     dnotes = _divide_note(notes)
 
-    # print(dnotes)
     dnotes.sort(key=lambda x: x.time)
-    # print('sorted:')
-    # print(dnotes)
     cur_time = 0
     cur_vel = 0
     for snote in dnotes:
         events += _make_time_sift_events(prev_time=cur_time, post_time=snote.time)
         events += _snote2events(snote=snote, prev_vel=cur_vel)
-        # events += _make_time_sift_events(prev_time=cur_time, post_time=snote.time)
 
         cur_time = snote.time
         cur_vel = snote.velocity
@@ -232,31 +223,14 @@ def encode_midi(file_path):
 
 def decode_midi(idx_array, file_path=None):
     event_sequence = [Event.from_int(idx) for idx in idx_array]
-    #print(event_sequence)
     snote_seq = _event_seq2snote_seq(event_sequence)
     note_seq = _merge_note(snote_seq)
     note_seq.sort(key=lambda x:x.start)
-    #print(note_seq)
     mid = pretty_midi.PrettyMIDI()
-    # if want to change instument, see https://www.midi.org/specifications/item/gm-level-1-sound-set
-    instument = pretty_midi.Instrument(1, False, "Developed By Yang-Kichang")
+    instument = pretty_midi.Instrument(1, False, "2470")
     instument.notes = note_seq
 
     mid.instruments.append(instument)
     if file_path is not None:
         mid.write(file_path)
     return mid
-
-
-if __name__ == '__main__':
-    encoded = encode_midi('bin/ADIG04.mid')
-    print(encoded)
-    decided = decode_midi(encoded,file_path='bin/test.mid')
-
-    ins = pretty_midi.PrettyMIDI('bin/ADIG04.mid')
-    print(ins)
-    print(ins.instruments[0])
-    for i in ins.instruments:
-        print(i.control_changes)
-        print(i.notes)
-

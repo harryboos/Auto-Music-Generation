@@ -1,7 +1,8 @@
-from layers import *
+from decoder import Decoder
 import sys
 from tensorflow.python import keras
 import json
+import tensorflow as tf
 import tensorflow_probability as tfp
 import random
 from progress.bar import Bar
@@ -9,7 +10,7 @@ from progress.bar import Bar
 
 class MusicTransformerDecoder(keras.Model):
     def __init__(self, embedding_dim=256, vocab_size=388+2, num_layer=6,
-                 max_seq=1024, dropout=0.2, loader_path=None):
+                 max_seq=2048, dropout=0.2, loader_path=None):
         super(MusicTransformerDecoder, self).__init__()
 
         if loader_path:
@@ -86,7 +87,7 @@ class MusicTransformerDecoder(keras.Model):
         config['vocab_size'] = self.vocab_size
         return config
 
-    def generate(self, prior: list, length=1024):
+    def generate(self, prior: list, length=2048):
         decode_array = prior
         decode_array = tf.constant([decode_array])
         
